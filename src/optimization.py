@@ -2,20 +2,16 @@ import sys
 import matplotlib
 if sys.platform=='darwin':
     matplotlib.use("TKAgg")
-import pandas as pd
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 import numpy as np
-from colors import color
-import sklearn as sl
-import skimage
 from sklearn.metrics import mean_squared_error as MSE
-from data import Sample, smooth, Spectra
-from scipy.optimize import basinhopping
 from scipy.integrate import trapz
 from camera import CameraCalibration
-
 from tmm.tmm_core import coh_tmm, unpolarized_RT
+import pickle
+
+wavels = np.linspace(405, 740, 70)
 
 def NRMSE(y_true,y_pred):
     """
@@ -64,19 +60,6 @@ Si_n= interp1d(wl, n)
 Si_k= interp1d(wl, k)
 wl, n = data_PMMA[:,0], data_PMMA[:,1]
 PMMA_n= interp1d(wl, n)
-
-#operational wavelenghts on which we are doing regression
-nfiles=28
-wavels = np.linspace(405, 740, 70)
-filename_templates = ['Sample_%02d' %  i for i in range(1,nfiles)]
-generate=False
-samples_file='ab_samples_ld.npy'
-if generate:
-    samples = [Sample(file, 'Mirror', spectra_kargs={'transform' : smooth}, thick_file='thicknesses.pkl')
-               for file in filename_templates]
-    np.save(samples_file, samples)
-else:
-    samples = np.load(samples_file,allow_pickle=True)
 
 def PMMA_n_extr(wl0):
     # Problem: PMMA refractive index defined only from 405nm. Solution:
@@ -134,124 +117,13 @@ class RandomDisplacementBounds():
         return x
 
 if __name__=='__main__':
+    pass
     # wavels = np.linspace(405, 750, 100)
     # for d in np.linspace(100, 500, 5):
     #     reflections = [get_refl(wl0, d) for wl0 in wavels]
     #     plt.plot(wavels, reflections, label='d=' + str(d))
     # plt.legend()
     # plt.show()
-    camera = CameraCalibration.load('camera_ld.npy')
-    dmin=[60]
-    dmax=[500]
-    #sample=np.random.choice(samples)
-    sample=np.random.choice(samples)
-    bounds = [(low, high) for low, high in zip(dmin, dmax)]
-    minimizer_kwargs = dict(method="L-BFGS-B", bounds=bounds)
-    #print(sample.spectra.f(750))
-    # fast option, uncomment. Put in a loop with random initial point!
-    # x0 = [300]
-    # #res = basinhopping(lambda x: myfun(x,sample), x0, minimizer_kwargs=minimizer_kwargs)
-    # # slower option but more stable
-    # take_step = RandomDisplacementBounds(dmin, dmax, stepsize=[200])
-    # res = basinhopping(lambda x: myfun_with_scaling(x,scaling,sample), x0, niter=30,
-    #                    minimizer_kwargs=minimizer_kwargs,
-    #                    take_step=take_step)
-    # d0 = res.x[0]
-    ds = np.linspace(dmin[0],dmax[0],200)
-    cost_functions=[myfun_color(d,sample,camera) for d in ds]
-    d0=ds[np.argmin(cost_functions)]
-    print('estimated thickness',d0)
-    print('measured thickness',sample.thickness)
-    plt.figure(figsize=[10,5])
-    # plt.subplot(221)
-    # plt.title('estimated thickness=%.1f, measured thickness=%.1f' % (d0,sample.thickness))
-    # plot_spectra(d0, color='r',label='fitted spectra')
-    # spectra = sample.spectra.f(wavels)
-    # #plt.plot(wavels,spectra,'b',label='raw measured spectra')
-    # plot_spectra(sample.thickness,color='k',label='spectra with measured thickness')
-    # plt.legend()
-    # plt.xlabel('wl, nm')
-    # plt.ylabel('reflection')
-    #
-    plt.subplot(121)
-    plt.title('estimated thickness=%.1f, measured thickness=%.1f' % (d0,sample.thickness))
-    plt.plot(ds,cost_functions)
-    plt.axvline(d0,color='r', label='estimated thickness')
-    plt.axvline(sample.thickness, color='k', label='measured thickness')
-    plt.xlabel('thickness, nm')
-    plt.ylabel('cost')
-    #
-    plt.subplot(122)
-    pdf, conf = confidence(cost_functions, ds)
-    plt.title('confidence score %.2f' % conf)
-    plt.plot(ds,pdf)
-    plt.yticks([])
-    plt.axvline(d0,color='r', label='estimated thickness')
-    plt.axvline(sample.thickness, color='k', label='measured thickness')
-    plt.xlabel('thickness, nm')
-    plt.ylabel('pdf')
-
-    #
-    # plt.subplot(234)
-    # plt.title('Color from camera image')
-    # sample.image.show_estimated_color()
-    # plt.subplot(235)
-    # plt.title('Camera image')
-    # sample.image.show_true_image()
-    # plt.subplot(236)
-    # plt.title('Calibrated camera color (estimated thickness)')
-    # intensities = [get_refl(wl, sample.thickness) for wl in wavels]
-    # rgb = camera.spectra_to_XYZ(wavels,intensities)
-    # Spectra.show_calculated_color(rgb)
-    #plt.savefig('results/color-thickness/'+sample.filename+'.png')
-    plt.show()
-    #plt.close()
-    estimated_thicknesses = []
-    gt_thicknesses = []
-    confidences = []
-    for sample in samples:
-        ds = np.linspace(dmin[0], dmax[0], 200)
-        cost_functions = [myfun_color(d, sample, camera) for d in ds]
-        d0 = ds[np.argmin(cost_functions)]
-        print('estimated thickness', d0)
-        print('measured thickness', sample.thickness)
-        plt.figure(figsize=[10, 5])
-        plt.subplot(121)
-        plt.title('estimated thickness=%.1f, measured thickness=%.1f' % (d0, sample.thickness))
-        plt.plot(ds, cost_functions)
-        plt.axvline(d0, color='r', label='estimated thickness')
-        plt.axvline(sample.thickness, color='k', label='measured thickness')
-        plt.xlabel('thickness, nm')
-        plt.ylabel('cost')
-        #
-        plt.subplot(122)
-        pdf, conf = confidence(cost_functions, ds)
-        plt.title('confidence score %.2f' % conf)
-        plt.plot(ds, pdf)
-        plt.yticks([])
-        plt.axvline(d0, color='r', label='estimated thickness')
-        plt.axvline(sample.thickness, color='k', label='measured thickness')
-        estimated_thicknesses.append(d0)
-        gt_thicknesses.append(sample.thickness)
-        confidences.append(conf)
-        plt.xlabel('thickness, nm')
-        plt.ylabel('pdf')
-        plt.savefig('new_results/color-thickness/new_set/' + sample.filename + '2.png')
-        plt.close()
-    estimated_thicknesses = np.array(estimated_thicknesses)
-    gt_thicknesses = np.array(gt_thicknesses)
-    confidences = np.array(confidences)
-    plt.figure(figsize=[10,5])
-    difference = np.abs(estimated_thicknesses-gt_thicknesses)
-    plt.bar(np.arange(len(samples)),difference,color='b', label = 'confidence > 40%')
-    mask = confidences > 0.4
-    difference[mask] = 0
-    plt.bar(np.arange(len(samples)), difference, color='r',label = 'confidence < 40%')
-    plt.legend()
-    plt.xlabel('samples')
-    plt.ylabel('thick abs err')
-    plt.savefig('new_results/color-thickness/new_set/gt_vs_est2.png')
-    plt.close()
 
 
 
