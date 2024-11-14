@@ -32,12 +32,15 @@ This repository provides code for real-time mapping of cellular refractive index
 
 ## Repository Contents
 
-- `data/`: Sample datasets and preprocessing scripts to work with RI and thickness mapping data.
-- `models/`: Machine learning model implementations for RI and thickness prediction.
-- `scripts/`: Scripts to train, test, and evaluate the models on biological specimen data.
-- `notebooks/`: Jupyter notebooks for exploratory analysis, visualization, and result interpretation.
-- `config/`: Configuration files for model parameters and preprocessing options.
-- `utils/`: Utility scripts for data loading, preprocessing, and visualization.
+- `aux/`: Auxiliary files for data correspondence and analysis.
+- `mats/`: Contains material and origin data for model configurations.
+- `src/`: Source code, including scripts for data processing and clustering. Key files include `ImageClustering` and other utilities for data handling.
+- `.gitignore`: Specifies files and directories to be ignored by Git.
+- `CameraCalibration.ipynb`: Notebook for calibrating camera settings for image analysis.
+- `FlatOptimization.ipynb`: Notebook for flat optimization analysis of the imaging process.
+- `ImageClustering.ipynb`: Notebook tutorial for clustering biological images based on refractive index and thickness characteristics.
+- `ImageOptimization.ipynb`: Notebook for optimizing image data for refractive index and thickness mapping.
+- `README.md`: This readme file, providing an overview of the project, usage instructions, and setup details.
 
 ## Getting Started
 
@@ -92,7 +95,7 @@ This project is licensed under the MIT License.
 
 ## Contact
 
-For questions or collaborations, please contact [Maksim Makarenko](mailto:makarenko@researchinstitute.com) or any of the co-authors listed in the publication.
+For questions or collaborations, please contact [Maksim Makarenko](mailto:makarenko@kaust.edu.sa) or any of the co-authors listed in the publication.
 
 ---
 
