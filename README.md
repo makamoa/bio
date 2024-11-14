@@ -20,6 +20,8 @@ Published in: Communications Biology, Volume 7, Article number: 154 (2024)
 
 ## Abstract
 
+![image](https://github.com/user-attachments/assets/6240840f-0cda-4a2d-848f-d91a77ffcf04)
+
 This repository provides code for real-time mapping of cellular refractive index (RI) and thickness at diffraction-limited resolutions. This innovative machine-learning-based technique can map the RI and thickness of biological specimens using a single image from a conventional color camera. By utilizing a nanostructured membrane that stretches a biological analyte over its surface, this technology achieves high RI sensitivity (10⁻⁴) and sub-nanometer thickness resolution.
 
 ## Key Features
