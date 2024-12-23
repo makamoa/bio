@@ -14,7 +14,7 @@ Authors:
 - Andrea Fratalocchi
 
 Published in: Communications Biology, Volume 7, Article number: 154 (2024)  
-[Link to Article](https://doi.org/10.1038/s42003-024-0154-0)
+[Link to Article](https://www.nature.com/articles/s42003-024-05839-w)
 
 ---
 
